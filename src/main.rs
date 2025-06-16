@@ -1,4 +1,4 @@
-use btleplug::api::{Central as _, Manager as _, Peripheral as _};
+use btleplug::api::{Central as _, Manager as _, Peripheral};
 use btleplug::platform::Manager;
 use tokio;
 
@@ -25,6 +25,34 @@ async fn main() {
         let devices = adapter.peripherals().await.unwrap();
         for device in devices {
             println!("Discovered device: {:?}", device);
+
+            // Check if the device matches your phone's name or address
+            if let Some(name) = device.properties().await.unwrap().unwrap().local_name {
+                if name.contains("Galaxy A10e") {
+                    // Replace with your phone's name
+                    println!("Connecting to device: {:?}", name);
+                    device.connect().await.unwrap();
+                    // TODO: if this unwrap fails with the following error:
+                    // Other(DbusError(D-Bus error: br-connection-unknown
+                    // (org.bluez.Error.Failed)))
+                    // the device needs to be paired with the host first
+                    println!("Connected to device: {:?}", name);
+                    // You can now send and receive messages here
+
+                    // Send an SMS message
+                    send_sms(&device, "Hello from Rust!").await;
+                }
+            }
         }
     }
+}
+
+async fn send_sms(device: &impl Peripheral, message: &str) {
+    // Here you would implement the logic to send an SMS message
+    // This typically involves using the Message Access Profile (MAP)
+    // Note: Actual implementation may vary based on device capabilities
+
+    println!("Sending SMS: {}", message);
+    // Example: You would need to send the message using the appropriate Bluetooth commands
+    // This is a placeholder for the actual implementation
 }
