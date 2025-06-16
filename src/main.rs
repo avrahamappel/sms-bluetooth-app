@@ -13,5 +13,18 @@ async fn main() {
     // Print the available adapters
     for adapter in adapters {
         println!("Found adapter: {:?}", adapter);
+
+        // Start scanning for devices
+        adapter.start_scan().await.unwrap();
+        println!("Scanning for devices...");
+
+        // Wait for a few seconds to discover devices
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+
+        // Get the discovered devices
+        let devices = adapter.peripherals().await.unwrap();
+        for device in devices {
+            println!("Discovered device: {:?}", device);
+        }
     }
 }
