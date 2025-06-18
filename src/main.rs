@@ -1,6 +1,13 @@
 use btleplug::api::{Central as _, Manager as _, Peripheral};
 use btleplug::platform::Manager;
-use tokio;
+
+mod sms_sender;
+
+#[cfg(target_os = "linux")]
+mod bluez_sms_sender;
+
+#[cfg(target_os = "macos")]
+mod core_bluetooth_sms_sender;
 
 #[tokio::main]
 async fn main() {
@@ -48,11 +55,27 @@ async fn main() {
 }
 
 async fn send_sms(device: &impl Peripheral, message: &str) {
-    // Here you would implement the logic to send an SMS message
-    // This typically involves using the Message Access Profile (MAP)
-    // Note: Actual implementation may vary based on device capabilities
+    // This is a conceptual placeholder for sending an SMS over MAP
+    // You would need to establish a connection to the MAP service
 
-    println!("Sending SMS: {}", message);
-    // Example: You would need to send the message using the appropriate Bluetooth commands
-    // This is a placeholder for the actual implementation
+    // Example: Connect to the MAP service (this is pseudo-code)
+    let map_service_uuid = "0000181C-0000-1000-8000-00805F9B34FB"; // Example UUID for MAP
+    let map_characteristic_uuid = "00002A3E-0000-1000-8000-00805F9B34FB"; // Example UUID for MAP characteristic
+
+    // Connect to the MAP service
+    let map_service = device.get_service(map_service_uuid).await.unwrap();
+    let map_characteristic = map_service
+        .get_characteristic(map_characteristic_uuid)
+        .await
+        .unwrap();
+
+    // Create a new message (pseudo-code)
+    let create_message_command = format!("CREATE_MESSAGE: {}", message);
+    map_characteristic
+        .write(create_message_command.as_bytes())
+        .await
+        .unwrap();
+
+    // Notify the user
+    println!("SMS sent: {}", message);
 }
